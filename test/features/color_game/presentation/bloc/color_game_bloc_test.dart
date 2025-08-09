@@ -1,5 +1,6 @@
 import 'package:alma/core/error/failures.dart';
 import 'package:alma/core/usecases/usecase.dart';
+import 'package:alma/core/utils/logger.dart';
 import 'package:alma/features/color_game/domain/entities/color_question.dart';
 import 'package:alma/features/color_game/domain/entities/game_session.dart';
 import 'package:alma/features/color_game/domain/repositories/color_game_repository.dart';
@@ -13,6 +14,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:logger/logger.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:uuid/uuid.dart';
 
@@ -28,21 +30,12 @@ void main() {
   late MockAnswerQuestion mockAnswerQuestion;
   late MockColorGameRepository mockRepository;
 
-  setUp(() {
-    mockStartGameSession = MockStartGameSession();
-    mockGenerateColorQuestion = MockGenerateColorQuestion();
-    mockAnswerQuestion = MockAnswerQuestion();
-    mockRepository = MockColorGameRepository();
-    
-    bloc = ColorGameBloc(
-      startGameSession: mockStartGameSession,
-      generateColorQuestion: mockGenerateColorQuestion,
-      answerQuestion: mockAnswerQuestion,
-      repository: mockRepository,
-    );
-  });
-
   setUpAll(() {
+    // Initialize AppLogger for tests
+    TestWidgetsFlutterBinding.ensureInitialized();
+    AppLogger.init(level: Level.off); // Disable logging in tests
+    
+    // Register fallback values for mocktail
     registerFallbackValue(NoParams());
     registerFallbackValue(GenerateColorQuestionParams(level: 1));
     registerFallbackValue(AnswerQuestionParams(
@@ -58,6 +51,20 @@ void main() {
       questionId: 'test',
       isCorrect: true,
     ));
+  });
+
+  setUp(() {
+    mockStartGameSession = MockStartGameSession();
+    mockGenerateColorQuestion = MockGenerateColorQuestion();
+    mockAnswerQuestion = MockAnswerQuestion();
+    mockRepository = MockColorGameRepository();
+    
+    bloc = ColorGameBloc(
+      startGameSession: mockStartGameSession,
+      generateColorQuestion: mockGenerateColorQuestion,
+      answerQuestion: mockAnswerQuestion,
+      repository: mockRepository,
+    );
   });
 
   tearDown(() {
@@ -121,13 +128,16 @@ void main() {
 
   group('AnswerSelectedEvent', () {
     blocTest<ColorGameBloc, ColorGameState>(
-      'emits [ColorGameCorrectAnswer, ColorGameTransitioning] when answer is correct',
+      'emits [ColorGameCorrectAnswer, ColorGameTransitioning, ColorGameReady] when answer is correct',
       build: () {
         when(() => mockAnswerQuestion(any()))
             .thenAnswer((_) async => Right(tSession.copyWith(
                   score: 10,
                   correctAnswers: 1,
                 )));
+        // Mock the generateColorQuestion call that happens after correct answer
+        when(() => mockGenerateColorQuestion(any()))
+            .thenAnswer((_) async => Right(tQuestion));
         return bloc;
       },
       seed: () => ColorGameReady(session: tSession, currentQuestion: tQuestion),
@@ -140,8 +150,12 @@ void main() {
         ColorGameTransitioning(
           session: tSession.copyWith(score: 10, correctAnswers: 1),
         ),
+        ColorGameReady(
+          session: tSession.copyWith(score: 10, correctAnswers: 1),
+          currentQuestion: tQuestion,
+        ),
       ],
-      wait: const Duration(milliseconds: 1600),
+      wait: const Duration(milliseconds: 2000), // Wait longer for the full sequence
     );
 
     blocTest<ColorGameBloc, ColorGameState>(

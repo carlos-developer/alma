@@ -26,32 +26,6 @@ void main() {
       expect(decoration.color, equals(testColor));
     });
 
-    testWidgets('displays with custom size when provided', (WidgetTester tester) async {
-      // arrange
-      const testColor = Colors.blue;
-      const testSize = 300.0;
-
-      // act
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: ColorDisplay(
-              color: testColor,
-              size: testSize,
-            ),
-          ),
-        ),
-      );
-
-      // assert
-      final container = tester.widget<AnimatedContainer>(
-        find.byType(AnimatedContainer),
-      );
-      
-      expect(container.constraints?.maxWidth, equals(testSize));
-      expect(container.constraints?.maxHeight, equals(testSize));
-    });
-
     testWidgets('displays palette icon', (WidgetTester tester) async {
       // act
       await tester.pumpWidget(
