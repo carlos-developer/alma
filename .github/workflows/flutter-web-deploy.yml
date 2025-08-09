@@ -1,247 +1,364 @@
-name: Deploy ALMA to GitHub Pages
+name: Flutter Web Deploy to GitHub Pages
 
-# Activadores del workflow
 on:
-  # Despliegue automático cuando se hace push a main
   push:
-    branches: [ main ]
-  
-  # Permite ejecutar manualmente desde la pestaña Actions
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
   workflow_dispatch:
     inputs:
-      debug_enabled:
-        description: 'Ejecutar con logs de debug'
+      deploy_message:
+        description: 'Custom deployment message'
         required: false
-        default: 'false'
+        default: 'Manual deployment triggered'
+      skip_tests:
+        description: 'Skip tests (yes/no)'
+        required: false
+        default: 'no'
 
-# Permisos necesarios para el despliegue
+# Permisos necesarios para GitHub Pages
 permissions:
   contents: write
   pages: write
   id-token: write
 
-# Evita ejecuciones concurrentes
+# Configuración para evitar múltiples deploys simultáneos
 concurrency:
-  group: "pages"
+  group: "pages-deployment"
   cancel-in-progress: false
 
 jobs:
-  # Job único simplificado para build y deploy
-  build-and-deploy:
-    name: Build y Deploy ALMA Web
+  # Job 1: Análisis y Testing
+  analyze-and-test:
+    name: Analyze and Test
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event.inputs.skip_tests != 'yes'
     
     steps:
-      # ============================================
-      # PASO 1: Checkout del código
-      # ============================================
-      - name: 📥 Checkout código
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Necesario para obtener todo el historial
-      
-      # ============================================
-      # PASO 2: Configurar Flutter
-      # ============================================
-      - name: 🎯 Configurar Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.32.4'
-          channel: 'stable'
-          cache: true
-          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
-          cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:'
-      
-      # ============================================
-      # PASO 3: Información del entorno (debug)
-      # ============================================
-      - name: 📋 Información del entorno
-        if: github.event.inputs.debug_enabled == 'true'
-        run: |
-          echo "=== Información del Sistema ==="
-          flutter --version
-          flutter doctor -v
-          echo ""
-          echo "=== Información del Repositorio ==="
-          echo "Repositorio: ${{ github.repository }}"
-          echo "Rama: ${{ github.ref_name }}"
-          echo "Commit: ${{ github.sha }}"
-          echo "Actor: ${{ github.actor }}"
-      
-      # ============================================
-      # PASO 4: Cache de dependencias Pub
-      # ============================================
-      - name: 📦 Cache de dependencias
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.pub-cache
-            .dart_tool
-            build
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-      
-      # ============================================
-      # PASO 5: Ajuste temporal de dependencias
-      # ============================================
-      - name: 🔧 Ajustar compatibilidad de dependencias
-        run: |
-          # Fix temporal para flutter_lints si es necesario
-          if grep -q "flutter_lints: \^5\." pubspec.yaml; then
-            echo "Ajustando versión de flutter_lints para compatibilidad..."
-            sed -i 's/flutter_lints: \^5\.0\.0/flutter_lints: \^4\.0\.0/' pubspec.yaml
-          fi
-      
-      # ============================================
-      # PASO 6: Instalar dependencias
-      # ============================================
-      - name: 📥 Instalar dependencias
-        run: |
-          flutter config --enable-web
-          flutter pub get
-      
-      # ============================================
-      # PASO 7: Análisis de código (no bloqueante)
-      # ============================================
-      - name: 🔍 Análisis de código
-        run: flutter analyze || echo "⚠️ Advertencias en análisis (continuando...)"
-        continue-on-error: true
-      
-      # ============================================
-      # PASO 8: Ejecutar tests (no bloqueante)
-      # ============================================
-      - name: 🧪 Ejecutar tests
-        run: |
-          flutter test --coverage || echo "⚠️ Algunos tests fallaron (continuando...)"
-        continue-on-error: true
-      
-      # ============================================
-      # PASO 9: Build de producción
-      # ============================================
-      - name: 🏗️ Build Flutter Web
-        run: |
-          # Build con optimizaciones para producción
-          flutter build web \
-            --release \
-            --base-href /alma/ \
-            --dart-define=ENVIRONMENT=production \
-            --dart-define=BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
-            --dart-define=BUILD_NUMBER=${{ github.run_number }}
-          
-          # Asegurar archivos necesarios para GitHub Pages
-          touch build/web/.nojekyll
-          
-          # Crear 404.html para manejo de rutas
-          cat > build/web/404.html << 'EOF'
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <title>ALMA - Aprendizaje y Lógica para Mentes Activas</title>
-            <script>
-              const pathSegments = window.location.pathname.split('/').filter(Boolean);
-              const repoName = pathSegments[0];
-              if (pathSegments.length > 1) {
-                window.location.href = '/' + repoName + '/';
-              }
-            </script>
-          </head>
-          <body>
-            <p>Redirigiendo a ALMA...</p>
-          </body>
-          </html>
-          EOF
-          
-          # Crear archivo de información del build
-          cat > build/web/build-info.json << EOF
-          {
-            "version": "1.0.0",
-            "buildNumber": "${{ github.run_number }}",
-            "buildDate": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
-            "commit": "${{ github.sha }}",
-            "branch": "${{ github.ref_name }}",
-            "environment": "production"
-          }
-          EOF
-      
-      # ============================================
-      # PASO 10: Optimizaciones adicionales
-      # ============================================
-      - name: ⚡ Optimizaciones de rendimiento
-        run: |
-          # Comprimir assets si es posible (opcional)
-          if command -v gzip >/dev/null 2>&1; then
-            find build/web -type f \( -name "*.js" -o -name "*.css" -o -name "*.html" \) \
-              -exec gzip -9 -k {} \; 2>/dev/null || true
-          fi
-          
-          # Mostrar tamaño del build
-          echo "=== Tamaño del Build ==="
-          du -sh build/web/
-          echo ""
-          echo "=== Archivos principales ==="
-          ls -lh build/web/*.js 2>/dev/null || true
-          ls -lh build/web/*.html
-      
-      # ============================================
-      # PASO 11: Desplegar a GitHub Pages
-      # ============================================
-      - name: 🚀 Desplegar a GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/web
-          publish_branch: gh-pages
-          force_orphan: true
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
-          commit_message: |
-            Deploy ALMA Web App v1.0.0
-            
-            Build: #${{ github.run_number }}
-            Commit: ${{ github.sha }}
-            Date: ${{ github.event.head_commit.timestamp }}
-          cname: ''  # Dejar vacío si no tienes dominio personalizado
-      
-      # ============================================
-      # PASO 12: Notificación de éxito
-      # ============================================
-      - name: ✅ Despliegue completado
-        run: |
-          echo "=========================================="
-          echo "   DESPLIEGUE COMPLETADO EXITOSAMENTE"
-          echo "=========================================="
-          echo ""
-          echo "🎯 Build Number: #${{ github.run_number }}"
-          echo "📦 Commit: ${{ github.sha }}"
-          echo "👤 Desplegado por: ${{ github.actor }}"
-          echo ""
-          echo "🌐 La aplicación estará disponible en:"
-          echo "   https://${{ github.repository_owner }}.github.io/alma/"
-          echo ""
-          echo "⏱️ El sitio puede tardar 2-5 minutos en actualizarse"
-          echo ""
-          echo "📊 Ver estado del despliegue:"
-          echo "   https://github.com/${{ github.repository }}/deployments"
-          echo "=========================================="
-      
-      # ============================================
-      # PASO 13: Crear release (opcional, solo tags)
-      # ============================================
-      - name: 📦 Crear Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            build/web/build-info.json
-          generate_release_notes: true
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: 📚 Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: 🎯 Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.32.4'
+        channel: 'stable'
+        cache: true
+    
+    - name: 📦 Get dependencies
+      run: flutter pub get
+    
+    - name: 🔍 Analyze code
+      run: flutter analyze --no-fatal-infos --no-fatal-warnings
+    
+    - name: 🧪 Run tests
+      run: flutter test --coverage
+    
+    - name: 📊 Upload coverage
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: coverage-report
+        path: coverage/
 
-# Metadata del workflow
-# Última actualización: 2025-08-09
-# Versión: 1.0.0
-# Proyecto: ALMA - Aprendizaje y Lógica para Mentes Activas
+  # Job 2: Build y Deploy
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    needs: [analyze-and-test]
+    if: |
+      always() && 
+      (needs.analyze-and-test.result == 'success' || needs.analyze-and-test.result == 'skipped') &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    
+    steps:
+    # 1. Checkout del código
+    - name: 📚 Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    # 2. Configurar información del repositorio
+    - name: ℹ️ Get repository info
+      id: repo_info
+      run: |
+        REPO_NAME=$(echo ${{ github.repository }} | cut -d'/' -f2)
+        REPO_OWNER=$(echo ${{ github.repository }} | cut -d'/' -f1)
+        echo "repo_name=$REPO_NAME" >> $GITHUB_OUTPUT
+        echo "repo_owner=$REPO_OWNER" >> $GITHUB_OUTPUT
+        echo "deploy_url=https://${REPO_OWNER}.github.io/${REPO_NAME}/" >> $GITHUB_OUTPUT
+        echo "📦 Repository: $REPO_NAME"
+        echo "👤 Owner: $REPO_OWNER"
+        echo "🌐 Deploy URL: https://${REPO_OWNER}.github.io/${REPO_NAME}/"
+    
+    # 3. Configurar Flutter con versión correcta
+    - name: 🎯 Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.32.4'
+        channel: 'stable'
+        cache: true
+        cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+    
+    # 4. Verificar versiones
+    - name: 🔍 Verify environment
+      run: |
+        echo "📊 Environment Information:"
+        echo "=========================="
+        flutter --version
+        dart --version
+        echo ""
+        echo "📋 Flutter Doctor:"
+        flutter doctor -v
+    
+    # 5. Cache de pub dependencies
+    - name: 📦 Cache pub dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.pub-cache
+          .dart_tool
+        key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pub-
+    
+    # 6. Limpiar proyecto
+    - name: 🧹 Clean project
+      run: flutter clean
+    
+    # 7. Obtener dependencias
+    - name: 📦 Get dependencies
+      run: |
+        flutter pub get
+        flutter pub deps
+    
+    # 8. Build para web (sin parámetros obsoletos)
+    - name: 🔨 Build web application
+      run: |
+        echo "🏗️ Building Flutter web application..."
+        echo "Base href: /${{ steps.repo_info.outputs.repo_name }}/"
+        
+        # Build sin --web-renderer (obsoleto en Flutter 3.32+)
+        flutter build web \
+          --release \
+          --base-href "/${{ steps.repo_info.outputs.repo_name }}/" \
+          --dart-define=FLUTTER_WEB_USE_SKIA=true \
+          --dart-define=FLUTTER_WEB_USE_EXPERIMENTAL_CANVAS_TEXT=true
+        
+        # Verificar que el build fue exitoso
+        if [ ! -d "build/web" ]; then
+          echo "❌ Error: build/web directory not found!"
+          exit 1
+        fi
+        
+        # Mostrar información del build
+        echo "✅ Build completed successfully!"
+        echo "📁 Build size: $(du -sh build/web | cut -f1)"
+        echo "📄 Files generated: $(find build/web -type f | wc -l)"
+        echo ""
+        echo "📋 Build contents:"
+        ls -la build/web/
+    
+    # 9. Optimizar build
+    - name: 🎨 Optimize build
+      run: |
+        echo "🔧 Optimizing build for production..."
+        
+        # Comprimir archivos JavaScript si existe gzip
+        if command -v gzip &> /dev/null; then
+          find build/web -type f -name "*.js" -exec gzip -k {} \;
+          echo "✅ JavaScript files compressed"
+        fi
+        
+        # Crear versión minificada del index.html
+        if [ -f build/web/index.html ]; then
+          sed -i 's/  */ /g' build/web/index.html
+          echo "✅ HTML minified"
+        fi
+    
+    # 10. Preparar archivos para GitHub Pages
+    - name: 📝 Prepare for GitHub Pages
+      run: |
+        echo "📦 Preparing files for GitHub Pages..."
+        
+        # Añadir .nojekyll para evitar procesamiento Jekyll
+        touch build/web/.nojekyll
+        echo "✅ Created .nojekyll"
+        
+        # Crear 404.html para manejar rutas del cliente
+        cp build/web/index.html build/web/404.html
+        echo "✅ Created 404.html for client-side routing"
+        
+        # Crear archivo de verificación
+        echo "${{ github.sha }}" > build/web/deploy-version.txt
+        echo "✅ Created version file"
+        
+        # Añadir CNAME si se proporciona dominio personalizado
+        if [ ! -z "${{ secrets.CUSTOM_DOMAIN }}" ]; then
+          echo "${{ secrets.CUSTOM_DOMAIN }}" > build/web/CNAME
+          echo "✅ Created CNAME file for custom domain"
+        fi
+        
+        # Crear robots.txt básico
+        cat > build/web/robots.txt << EOF
+        User-agent: *
+        Allow: /
+        Sitemap: ${{ steps.repo_info.outputs.deploy_url }}sitemap.xml
+        EOF
+        echo "✅ Created robots.txt"
+    
+    # 11. Verificar rama gh-pages existe
+    - name: 🌿 Ensure gh-pages branch exists
+      run: |
+        echo "🔍 Checking for gh-pages branch..."
+        
+        # Verificar si la rama existe remotamente
+        if git ls-remote --heads origin gh-pages | grep -q gh-pages; then
+          echo "✅ gh-pages branch already exists"
+        else
+          echo "📝 Creating gh-pages branch..."
+          git checkout --orphan gh-pages
+          git rm -rf . || true
+          echo "<!DOCTYPE html><html><body><h1>Initializing GitHub Pages</h1></body></html>" > index.html
+          git add index.html
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Initialize gh-pages branch"
+          git push origin gh-pages
+          git checkout ${{ github.ref_name }}
+          echo "✅ gh-pages branch created"
+        fi
+    
+    # 12. Deploy a GitHub Pages
+    - name: 🚀 Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./build/web
+        publish_branch: gh-pages
+        force_orphan: false
+        keep_files: false
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
+        commit_message: |
+          🚀 Deploy Flutter web app to GitHub Pages
+          
+          Build #${{ github.run_number }}
+          Triggered by: ${{ github.event_name }}
+          Branch: ${{ github.ref_name }}
+          Commit: ${{ github.sha }}
+          Author: ${{ github.actor }}
+          Message: ${{ github.event.inputs.deploy_message || github.event.head_commit.message }}
+          
+          View deployment: ${{ steps.repo_info.outputs.deploy_url }}
+        cname: ${{ secrets.CUSTOM_DOMAIN }}
+    
+    # 13. Crear release (opcional)
+    - name: 📦 Create release
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        body: |
+          ## 🚀 Automated Release
+          
+          **Build:** #${{ github.run_number }}
+          **Commit:** ${{ github.sha }}
+          **Deployment URL:** ${{ steps.repo_info.outputs.deploy_url }}
+          
+          ### Changes
+          ${{ github.event.head_commit.message }}
+        draft: false
+        prerelease: false
+      continue-on-error: true
+    
+    # 14. Verificar deployment
+    - name: ✅ Verify deployment
+      run: |
+        echo "🔍 Verifying deployment..."
+        echo "URL: ${{ steps.repo_info.outputs.deploy_url }}"
+        echo ""
+        echo "⏳ Waiting for GitHub Pages to update (this may take 1-10 minutes)..."
+        
+        # Esperar un momento para que GitHub Pages procese
+        sleep 30
+        
+        # Intentar verificar el sitio
+        MAX_ATTEMPTS=20
+        ATTEMPT=1
+        SUCCESS=false
+        
+        while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+          echo -n "Attempt $ATTEMPT/$MAX_ATTEMPTS: "
+          
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${{ steps.repo_info.outputs.deploy_url }}")
+          
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "301" ] || [ "$HTTP_CODE" = "302" ]; then
+            echo "✅ Site is responding (HTTP $HTTP_CODE)"
+            SUCCESS=true
+            break
+          else
+            echo "⏳ Not ready yet (HTTP $HTTP_CODE)"
+          fi
+          
+          if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+            sleep 15
+          fi
+          
+          ATTEMPT=$((ATTEMPT + 1))
+        done
+        
+        echo ""
+        if [ "$SUCCESS" = true ]; then
+          echo "✅ Deployment verified successfully!"
+          echo "🌐 Your site is live at: ${{ steps.repo_info.outputs.deploy_url }}"
+        else
+          echo "⚠️ Could not verify deployment immediately."
+          echo "GitHub Pages may still be processing. Please check in a few minutes:"
+          echo "${{ steps.repo_info.outputs.deploy_url }}"
+        fi
+    
+    # 15. Notificación de éxito
+    - name: 📢 Post deployment summary
+      if: always()
+      run: |
+        echo "================================================"
+        echo "📊 DEPLOYMENT SUMMARY"
+        echo "================================================"
+        echo "Status: ${{ job.status }}"
+        echo "Build: #${{ github.run_number }}"
+        echo "Repository: ${{ github.repository }}"
+        echo "Branch: ${{ github.ref_name }}"
+        echo "Commit: ${{ github.sha }}"
+        echo "Triggered by: ${{ github.actor }}"
+        echo "Event: ${{ github.event_name }}"
+        echo ""
+        if [ "${{ job.status }}" = "success" ]; then
+          echo "✅ Deployment URL: ${{ steps.repo_info.outputs.deploy_url }}"
+          echo ""
+          echo "🎉 Deployment completed successfully!"
+        else
+          echo "❌ Deployment failed. Please check the logs above."
+        fi
+        echo "================================================"
+
+  # Job 3: Notificación (opcional)
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [build-and-deploy]
+    if: always()
+    
+    steps:
+    - name: 📧 Send notification
+      run: |
+        if [ "${{ needs.build-and-deploy.result }}" = "success" ]; then
+          echo "✅ Deployment successful - notifications would be sent here"
+        else
+          echo "❌ Deployment failed - error notifications would be sent here"
+        fi
