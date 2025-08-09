@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test ColorDisplay Triplicado - ALMA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .size-info {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: inline-block;
+            font-size: 1.2rem;
+        }
+        
+        .test-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1800px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+        
+        .device-view {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .device-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .device-info {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        
+        .info-label {
+            color: #666;
+        }
+        
+        .info-value {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .iframe-container {
+            width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f9f9f9;
+        }
+        
+        iframe {
+            width: 100%;
+            border: none;
+            display: block;
+        }
+        
+        .features-list {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px auto;
+            max-width: 1200px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .features-list h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .feature-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f5f5f5;
+            border-left: 4px solid #667eea;
+            border-radius: 3px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .old-size { color: #999; }
+        .new-size { color: #4CAF50; font-weight: bold; }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .test-container {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 ColorDisplay Triplicado - ALMA</h1>
+        <div class="size-info">Tamaño aumentado 3x para mejor visibilidad</div>
+    </div>
+    
+    <div class="test-container">
+        <!-- Mobile View -->
+        <div class="device-view">
+            <div class="device-title">📱 Vista Móvil</div>
+            <div class="device-info">
+                <div class="info-row">
+                    <span class="info-label">Viewport:</span>
+                    <span class="info-value">375 x 667px</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">ColorDisplay:</span>
+                    <span class="info-value">~660px (antes: 220px)</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Scroll:</span>
+                    <span class="info-value">Habilitado</span>
+                </div>
+            </div>
+            <div class="iframe-container">
+                <iframe src="http://localhost:8080" style="width: 375px; height: 667px;"></iframe>
+            </div>
+        </div>
+        
+        <!-- Tablet View -->
+        <div class="device-view">
+            <div class="device-title">📱 Vista Tablet</div>
+            <div class="device-info">
+                <div class="info-row">
+                    <span class="info-label">Viewport:</span>
+                    <span class="info-value">768 x 1024px</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">ColorDisplay:</span>
+                    <span class="info-value">~840px (antes: 280px)</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Layout:</span>
+                    <span class="info-value">Vertical optimizado</span>
+                </div>
+            </div>
+            <div class="iframe-container">
+                <iframe src="http://localhost:8080" style="width: 768px; height: 600px;"></iframe>
+            </div>
+        </div>
+        
+        <!-- Desktop View -->
+        <div class="device-view" style="flex: 2; min-width: 600px;">
+            <div class="device-title">💻 Vista Desktop</div>
+            <div class="device-info">
+                <div class="info-row">
+                    <span class="info-label">Viewport:</span>
+                    <span class="info-value">1440 x 900px</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">ColorDisplay:</span>
+                    <span class="info-value">~1200px (antes: 400px)</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Layout:</span>
+                    <span class="info-value">Vertical (cambia a horizontal en >1600px)</span>
+                </div>
+            </div>
+            <div class="iframe-container">
+                <iframe src="http://localhost:8080" style="height: 600px;"></iframe>
+            </div>
+        </div>
+    </div>
+    
+    <div class="features-list">
+        <h2>✨ Cambios Implementados</h2>
+        
+        <div class="feature-item">
+            <strong>✓ Tamaño del ColorDisplay triplicado:</strong> Ahora el cuadro de color es 3 veces más grande en todas las resoluciones
+        </div>
+        
+        <div class="feature-item">
+            <strong>✓ Responsividad mantenida:</strong> El tamaño se adapta proporcionalmente según el dispositivo
+        </div>
+        
+        <div class="feature-item">
+            <strong>✓ Scroll automático en móvil:</strong> SingleChildScrollView agregado para pantallas pequeñas
+        </div>
+        
+        <div class="feature-item">
+            <strong>✓ Límites inteligentes:</strong> MaxHeight del 50% de la pantalla en dispositivos pequeños
+        </div>
+        
+        <div class="feature-item">
+            <strong>✓ Umbral de layout ajustado:</strong> El layout horizontal ahora se activa en >1600px (antes >1200px)
+        </div>
+        
+        <h2 style="margin-top: 30px;">📊 Comparación de Tamaños</h2>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Breakpoint</th>
+                    <th>Tamaño Anterior</th>
+                    <th>Tamaño Nuevo (3x)</th>
+                    <th>Cambio</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Mobile Small</td>
+                    <td class="old-size">180px</td>
+                    <td class="new-size">540px</td>
+                    <td>+360px</td>
+                </tr>
+                <tr>
+                    <td>Mobile Large</td>
+                    <td class="old-size">220px</td>
+                    <td class="new-size">660px</td>
+                    <td>+440px</td>
+                </tr>
+                <tr>
+                    <td>Tablet Small</td>
+                    <td class="old-size">280px</td>
+                    <td class="new-size">840px</td>
+                    <td>+560px</td>
+                </tr>
+                <tr>
+                    <td>Tablet Large</td>
+                    <td class="old-size">320px</td>
+                    <td class="new-size">960px</td>
+                    <td>+640px</td>
+                </tr>
+                <tr>
+                    <td>Desktop</td>
+                    <td class="old-size">360px</td>
+                    <td class="new-size">1080px</td>
+                    <td>+720px</td>
+                </tr>
+                <tr>
+                    <td>Desktop Large</td>
+                    <td class="old-size">400px</td>
+                    <td class="new-size">1200px</td>
+                    <td>+800px</td>
+                </tr>
+                <tr>
+                    <td>Ultra Wide</td>
+                    <td class="old-size">450px</td>
+                    <td class="new-size">1350px</td>
+                    <td>+900px</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2 style="margin-top: 30px;">🎯 Optimizaciones Aplicadas</h2>
+        <div class="feature-item">
+            <strong>Móvil:</strong> ScrollView habilitado para manejar el tamaño grande del color display
+        </div>
+        <div class="feature-item">
+            <strong>Tablet:</strong> Layout vertical optimizado con constraints máximos
+        </div>
+        <div class="feature-item">
+            <strong>Desktop:</strong> Umbral aumentado a 1600px para activar layout horizontal
+        </div>
+        <div class="feature-item">
+            <strong>Límites adaptativos:</strong> Min: 360px (3x120), Max: 1500px (3x500)
+        </div>
+    </div>
+    
+    <script>
+        // Log para verificar carga
+        console.log('Test page loaded - ColorDisplay triplicado activo');
+        
+        // Verificar que los iframes carguen
+        document.querySelectorAll('iframe').forEach((iframe, index) => {
+            iframe.onload = () => {
+                console.log(`✓ Vista ${index + 1} cargada correctamente`);
+            };
+            iframe.onerror = () => {
+                console.error(`✗ Error cargando vista ${index + 1}`);
+            };
+        });
+    </script>
+</body>
+</html>

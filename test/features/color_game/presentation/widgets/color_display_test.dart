@@ -56,8 +56,8 @@ void main() {
       );
       
       final decoration = container.decoration as BoxDecoration;
-      expect(decoration.borderRadius, equals(BorderRadius.circular(20)));
-      expect(decoration.border?.top.width, equals(3));
+      expect(decoration.borderRadius, equals(BorderRadius.circular(36)));
+      expect(decoration.border?.top.width, equals(6.75));
       expect(decoration.border?.top.color, equals(Colors.white));
     });
   });
