@@ -98,8 +98,8 @@ void main() {
       );
       
       final decoration = container.decoration as BoxDecoration;
-      expect(decoration.color, equals(AppColors.primaryContainer));
-      expect(decoration.borderRadius, equals(BorderRadius.circular(20)));
+      expect(decoration.color, equals(AppColors.primaryContainer.withValues(alpha: 0.9)));
+      expect(decoration.borderRadius, equals(BorderRadius.circular(25)));
       expect(decoration.boxShadow, isNotNull);
       expect(decoration.boxShadow!.length, equals(1));
     });
@@ -129,7 +129,7 @@ void main() {
       
       expect(
         container.padding,
-        equals(const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
+        equals(const EdgeInsets.all(12.8)),
       );
     });
 

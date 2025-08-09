@@ -161,10 +161,157 @@ class ColorGamePage extends StatelessWidget {
     final selectedAnswer =
         isIncorrectState ? state.selectedAnswer : '';
 
-    final fontSize = Responsive.fontSize(context, 18);
+    // Use LayoutBuilder for truly responsive design
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return _buildResponsiveGameLayout(
+          context,
+          constraints,
+          session,
+          question,
+          isCorrectState,
+          isIncorrectState,
+          selectedAnswer,
+        );
+      },
+    );
+  }
 
-    return Padding(
-      padding: Responsive.padding(context),
+  Widget _buildResponsiveGameLayout(
+    BuildContext context,
+    BoxConstraints constraints,
+    dynamic session,
+    dynamic question,
+    bool isCorrectState,
+    bool isIncorrectState,
+    String selectedAnswer,
+  ) {
+    final fontSize = Responsive.fontSize(context, 18);
+    final spacing = Responsive.getAdaptiveSpacing(context);
+    final contentWidth = Responsive.getContentWidth(context);
+    final isWideScreen = constraints.maxWidth > 1600;  // Increased threshold for larger display
+    
+    return Center(
+      child: Container(
+        width: contentWidth,
+        padding: Responsive.padding(context),
+        child: isWideScreen 
+          ? _buildWideScreenLayout(
+              context,
+              session,
+              question,
+              isCorrectState,
+              isIncorrectState,
+              selectedAnswer,
+              fontSize,
+              spacing,
+            )
+          : _buildNarrowScreenLayout(
+              context,
+              session,
+              question,
+              isCorrectState,
+              isIncorrectState,
+              selectedAnswer,
+              fontSize,
+              spacing,
+            ),
+      ),
+    );
+  }
+
+  Widget _buildWideScreenLayout(
+    BuildContext context,
+    dynamic session,
+    dynamic question,
+    bool isCorrectState,
+    bool isIncorrectState,
+    String selectedAnswer,
+    double fontSize,
+    double spacing,
+  ) {
+    return Column(
+      children: [
+        // Score display
+        GameScoreDisplay(
+          score: session.score,
+          level: session.currentLevel,
+          correctAnswers: session.correctAnswers,
+          totalQuestions: session.totalQuestions,
+        ),
+        SizedBox(height: spacing * 2),
+        // Main content in row layout for wide screens
+        Expanded(
+          child: Row(
+            children: [
+              // Left side - Question and Color Display
+              Expanded(
+                flex: 3,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      AppStrings.colorGameInstruction,
+                      style: TextStyle(
+                        fontSize: fontSize * 1.3,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[800],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: spacing * 2),
+                    ColorDisplay(color: question.correctColor),
+                  ],
+                ),
+              ),
+              SizedBox(width: spacing * 3),
+              // Right side - Options and Feedback
+              Expanded(
+                flex: 2,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Feedback message
+                    if (isCorrectState || isIncorrectState) ...[
+                      _buildFeedbackMessage(
+                        isCorrectState ? AppStrings.correctAnswer : AppStrings.incorrectAnswer,
+                        isCorrectState ? AppColors.success : AppColors.error,
+                        isCorrectState ? Icons.check_circle : Icons.cancel,
+                        fontSize,
+                      ),
+                      SizedBox(height: spacing * 2),
+                    ],
+                    // Option buttons in grid
+                    _buildAdaptiveOptionsGrid(
+                      context,
+                      question,
+                      isCorrectState,
+                      isIncorrectState,
+                      selectedAnswer,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNarrowScreenLayout(
+    BuildContext context,
+    dynamic session,
+    dynamic question,
+    bool isCorrectState,
+    bool isIncorrectState,
+    String selectedAnswer,
+    double fontSize,
+    double spacing,
+  ) {
+    // Use SingleChildScrollView for large color display on small screens
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: Column(
         children: [
           // Score display
@@ -174,7 +321,7 @@ class ColorGamePage extends StatelessWidget {
             correctAnswers: session.correctAnswers,
             totalQuestions: session.totalQuestions,
           ),
-          const Spacer(),
+          SizedBox(height: spacing * 2),
           // Question text
           Text(
             AppStrings.colorGameInstruction,
@@ -183,11 +330,17 @@ class ColorGamePage extends StatelessWidget {
               fontWeight: FontWeight.w600,
               color: Colors.grey[800],
             ),
+            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 30),
-          // Color display
-          ColorDisplay(color: question.correctColor),
-          const SizedBox(height: 40),
+          SizedBox(height: spacing * 2),
+          // Color display - Now much larger
+          Container(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.5, // Limit to 50% of screen height
+            ),
+            child: ColorDisplay(color: question.correctColor),
+          ),
+          SizedBox(height: spacing * 3),
           // Feedback message
           if (isCorrectState)
             _buildFeedbackMessage(
@@ -203,36 +356,98 @@ class ColorGamePage extends StatelessWidget {
               Icons.cancel,
               fontSize,
             ),
-          const SizedBox(height: 20),
+          if (isCorrectState || isIncorrectState) SizedBox(height: spacing * 2),
           // Option buttons
-          Wrap(
-            spacing: 20,
-            runSpacing: 20,
-            alignment: WrapAlignment.center,
-            children: question.options.map((colorName) {
-              final isCorrect = isCorrectState && 
-                  colorName == question.correctColorName;
-              final isIncorrect = isIncorrectState && 
-                  colorName == selectedAnswer;
-              
-              return ColorOptionButton(
-                colorName: colorName,
-                isCorrect: isCorrect,
-                isIncorrect: isIncorrect,
-                isDisabled: isCorrectState || isIncorrectState,
-                onPressed: () {
-                  if (!isCorrectState && !isIncorrectState) {
-                    context.read<ColorGameBloc>().add(
-                          AnswerSelectedEvent(selectedColor: colorName),
-                        );
-                  }
-                },
-              );
-            }).toList(),
+          _buildAdaptiveOptionsGrid(
+            context,
+            question,
+            isCorrectState,
+            isIncorrectState,
+            selectedAnswer,
           ),
-          const Spacer(),
+          SizedBox(height: spacing * 2),
         ],
       ),
+    );
+  }
+
+  Widget _buildAdaptiveOptionsGrid(
+    BuildContext context,
+    dynamic question,
+    bool isCorrectState,
+    bool isIncorrectState,
+    String selectedAnswer,
+  ) {
+    final columns = Responsive.getGridColumns(context, minItemWidth: 140);
+    final spacing = Responsive.getAdaptiveSpacing(context);
+    
+    // For smaller screens or fewer options, use wrap
+    if (Responsive.isMobile(context) || question.options.length <= 4) {
+      return Wrap(
+        spacing: spacing,
+        runSpacing: spacing,
+        alignment: WrapAlignment.center,
+        children: question.options.map<Widget>((colorName) {
+          return _buildColorOptionButton(
+            context,
+            colorName,
+            isCorrectState,
+            isIncorrectState,
+            selectedAnswer,
+            question,
+          );
+        }).toList(),
+      );
+    }
+    
+    // For larger screens, use a proper grid
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: columns.clamp(2, 4),
+        childAspectRatio: 2.2,
+        crossAxisSpacing: spacing,
+        mainAxisSpacing: spacing,
+      ),
+      itemCount: question.options.length,
+      itemBuilder: (context, index) {
+        final colorName = question.options[index];
+        return _buildColorOptionButton(
+          context,
+          colorName,
+          isCorrectState,
+          isIncorrectState,
+          selectedAnswer,
+          question,
+        );
+      },
+    );
+  }
+
+  Widget _buildColorOptionButton(
+    BuildContext context,
+    String colorName,
+    bool isCorrectState,
+    bool isIncorrectState,
+    String selectedAnswer,
+    dynamic question,
+  ) {
+    final isCorrect = isCorrectState && colorName == question.correctColorName;
+    final isIncorrect = isIncorrectState && colorName == selectedAnswer;
+    
+    return ColorOptionButton(
+      colorName: colorName,
+      isCorrect: isCorrect,
+      isIncorrect: isIncorrect,
+      isDisabled: isCorrectState || isIncorrectState,
+      onPressed: () {
+        if (!isCorrectState && !isIncorrectState) {
+          context.read<ColorGameBloc>().add(
+            AnswerSelectedEvent(selectedColor: colorName),
+          );
+        }
+      },
     );
   }
 
