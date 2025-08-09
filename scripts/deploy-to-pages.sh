@@ -122,7 +122,7 @@ if [ "$1" == "--test" ]; then
     flutter build web --release --base-href /
 else
     echo "  ↳ Construyendo para GitHub Pages..."
-    flutter build web --release --base-href /${REPO_NAME}/ --web-renderer canvaskit
+    flutter build web --release --base-href /${REPO_NAME}/
 fi
 
 # Copiar archivos necesarios
