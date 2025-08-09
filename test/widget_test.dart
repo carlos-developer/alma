@@ -1,30 +1,35 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+import 'package:alma/injection_container.dart' as di;
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:alma/main.dart';
+import 'package:alma/core/utils/logger.dart';
+import 'package:logger/logger.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  setUpAll(() async {
+    // Initialize test environment
+    TestWidgetsFlutterBinding.ensureInitialized();
+    
+    // Initialize logger for tests
+    AppLogger.init(level: Level.warning);
+    
+    // Initialize dependency injection
+    await di.init();
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  testWidgets('App starts and shows color game', (WidgetTester tester) async {
+    // Build our app and trigger a frame
+    await tester.pumpWidget(const AlmaApp());
+    await tester.pumpAndSettle();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify that the app starts with the color game page
+    expect(find.text('Identifica el Color'), findsOneWidget);
+    expect(find.text('Comenzar'), findsOneWidget);
+    
+    // Tap start button
+    await tester.tap(find.text('Comenzar'));
+    await tester.pumpAndSettle();
+    
+    // Verify game has started
+    expect(find.text('¿Cuál es este color?'), findsOneWidget);
   });
 }
