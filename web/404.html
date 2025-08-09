@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>ALMA - Aprendizaje y Lógica para Mentes Activas</title>
+  <script>
+    // Get the repository name from the URL
+    const pathSegments = window.location.pathname.split('/').filter(Boolean);
+    const repoName = pathSegments[0];
+    
+    // Redirect to the base path for proper routing
+    if (pathSegments.length > 1) {
+      window.location.href = '/' + repoName + '/';
+    }
+  </script>
+</head>
+<body>
+  <p>Redirigiendo a ALMA...</p>
+</body>
+</html>
