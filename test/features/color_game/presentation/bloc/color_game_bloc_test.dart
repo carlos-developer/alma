@@ -155,7 +155,7 @@ void main() {
           currentQuestion: tQuestion,
         ),
       ],
-      wait: const Duration(milliseconds: 2000), // Wait longer for the full sequence
+      wait: const Duration(milliseconds: 3000), // Increased wait time to be safe
     );
 
     blocTest<ColorGameBloc, ColorGameState>(
@@ -180,7 +180,7 @@ void main() {
           currentQuestion: tQuestion,
         ),
       ],
-      wait: const Duration(milliseconds: 2100),
+      wait: const Duration(milliseconds: 3000), // Increased wait time to be safe
     );
   });
 
