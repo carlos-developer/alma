@@ -138,6 +138,37 @@ alma/
 - Use environment variables for configuration
 - Follow the `.gitignore` rules strictly
 
+## Specialized Agents for Development
+
+The project leverages specialized AI agents for optimal task execution. These agents are invoked both manually and proactively.
+
+### Available Agents
+
+1. **flutter-test-engineer**: Automated test creation specialist
+2. **flutter-ui-ux-engineer**: UI/UX design and implementation expert
+3. **cloud-devops-flutter-architect**: CI/CD and deployment specialist
+4. **flutter-architect-alma**: Clean Architecture specialist for ALMA
+
+### Proactive Agent Activation
+
+Agents are automatically invoked when specific patterns are detected:
+
+- **Testing Agent**: Activated after implementing new features, creating BLoCs/Cubits, or modifying critical business logic
+- **UI/UX Agent**: Triggered when creating screens, improving user experience, or implementing responsive designs
+- **DevOps Agent**: Engaged for deployment tasks, CI/CD configuration, or release planning
+- **Architecture Agent**: Invoked when adding complex features, restructuring modules, or reviewing architectural compliance
+
+### Manual Activation Keywords
+
+Start your message with these keywords to manually invoke agents:
+
+- **Testing**: `test`, `testing`, `pruebas`
+- **UI/UX**: `diseñador`, `ui`, `ux`, `interfaz`
+- **DevOps**: `devops`, `deploy`, `ci/cd`, `pipeline`
+- **Architecture**: `arquitectura`, `arquitecto`, `estructura`
+
+For detailed agent documentation, see `.claude/README.md`
+
 ## Future Implementations
 
 As the project evolves, this document will be updated with:
