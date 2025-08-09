@@ -1,0 +1,289 @@
+################################################################################
+# ALMA - Archivo .gitignore para equipo colaborativo
+# Proyecto Flutter con soporte Android, iOS y Web
+# Configurado para 20+ desarrolladores
+################################################################################
+
+#==============================================================================
+# FLUTTER/DART - Solo ignorar archivos generados, NO código fuente
+#==============================================================================
+
+# Archivos temporales de Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# Build outputs
+/build/
+build/
+
+# IMPORTANTE - Archivos que SÍ se deben versionar:
+# ✓ pubspec.yaml (configuración del proyecto)
+# ✓ pubspec.lock (versiones fijas de dependencias - CRÍTICO)
+# ✓ analysis_options.yaml (reglas de análisis de código)
+# ✓ lib/ (todo el código fuente)
+# ✓ test/ (todas las pruebas)
+# ✓ assets/ (imágenes, fuentes, etc.)
+
+# Documentación autogenerada (no la documentación escrita por el equipo)
+doc/api/
+.yardoc
+.yardoc*
+
+#==============================================================================
+# ANDROID - Solo ignorar builds y archivos locales
+#==============================================================================
+
+# Archivos de build
+/android/app/debug
+/android/app/profile
+/android/app/release
+/android/.gradle/
+/android/captures/
+/android/.cxx/
+
+# Archivos locales
+/android/local.properties
+
+# Archivos generados
+/android/**/GeneratedPluginRegistrant.java
+/android/.idea/
+
+# Seguridad - NUNCA versionar
+*.jks
+*.keystore
+/android/key.properties
+/android/app/google-services.json
+
+# IMPORTANTE - Archivos Android que SÍ se deben versionar:
+# ✓ /android/gradlew
+# ✓ /android/gradlew.bat  
+# ✓ /android/gradle/wrapper/gradle-wrapper.jar
+# ✓ /android/gradle/wrapper/gradle-wrapper.properties
+# ✓ /android/app/build.gradle
+# ✓ /android/build.gradle
+# ✓ /android/settings.gradle
+# ✓ /android/gradle.properties (sin credenciales)
+# ✓ /android/app/src/main/AndroidManifest.xml
+
+#==============================================================================
+# iOS - Solo ignorar builds y archivos de usuario
+#==============================================================================
+
+# Archivos de usuario de Xcode
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+xcuserdata/
+
+# Archivos generados
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+/ios/.generated/
+/ios/Flutter/.last_build_id
+/ios/Flutter/App.framework
+/ios/Flutter/Flutter.framework
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/ephemeral/
+/ios/Flutter/flutter_export_environment.sh
+/ios/Runner/GeneratedPluginRegistrant.*
+/ios/build/
+DerivedData/
+
+# CocoaPods - Solo ignorar Pods descargados, NO el lock file
+/ios/Pods/
+/ios/.symlinks/
+
+# Seguridad
+/ios/Runner/GoogleService-Info.plist
+/ios/firebase_app_id_file.json
+
+# IMPORTANTE - Archivos iOS que SÍ se deben versionar:
+# ✓ /ios/Podfile
+# ✓ /ios/Podfile.lock (versiones fijas de pods - CRÍTICO)
+# ✓ /ios/Runner.xcodeproj/
+# ✓ /ios/Runner.xcworkspace/
+# ✓ /ios/Runner/Info.plist
+# ✓ /ios/Runner/Assets.xcassets/
+# ✓ /ios/Flutter/Release.xcconfig
+# ✓ /ios/Flutter/Debug.xcconfig
+
+#==============================================================================
+# WEB - TODOS los archivos web se versionan
+#==============================================================================
+
+# IMPORTANTE - NO ignorar ningún archivo de la carpeta web
+# ✓ /web/index.html
+# ✓ /web/manifest.json
+# ✓ /web/favicon.png
+# ✓ /web/icons/ (todos los iconos)
+# ✓ Cualquier archivo personalizado en /web/
+
+#==============================================================================
+# SEGURIDAD - Archivos que NUNCA deben versionarse
+#==============================================================================
+
+# Variables de entorno
+.env
+.env.*
+*.env
+!.env.example
+
+# Llaves y certificados
+*.pem
+*.p12
+*.key
+*.crt
+*.cer
+*.ppk
+id_rsa*
+id_dsa*
+
+# Credenciales
+credentials.json
+secrets.json
+secrets.yaml
+api_keys.dart
+*_secret.dart
+!*_example.dart
+
+# Firebase (archivos con información sensible)
+google-services.json
+GoogleService-Info.plist
+firebase_app_id_file.json
+.firebaserc
+
+# Pero SÍ versionar reglas de Firebase
+!firestore.rules
+!storage.rules
+!database.rules.json
+
+#==============================================================================
+# IDEs - Configuración personal vs proyecto
+#==============================================================================
+
+# VS Code - versionar configuración del proyecto
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# IntelliJ/Android Studio
+*.iml
+.idea/
+*.ipr
+*.iws
+
+# Otros editores
+*.swp
+*.swo
+*~
+*.sublime-workspace
+
+#==============================================================================
+# SISTEMA OPERATIVO
+#==============================================================================
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+.Trash-*
+
+#==============================================================================
+# ARCHIVOS TEMPORALES Y LOGS
+#==============================================================================
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+
+# Temporales
+*.tmp
+*.temp
+*.cache
+tmp/
+temp/
+
+# Backups personales
+*.backup
+*.bak
+*.old
+~$*
+
+#==============================================================================
+# TESTING
+#==============================================================================
+
+# Coverage reports
+coverage/
+*.lcov
+.test_coverage.dart
+
+# IMPORTANTE - SÍ versionar:
+# ✓ test/ (todas las pruebas)
+# ✓ integration_test/
+# ✓ test_driver/
+
+#==============================================================================
+# OTROS
+#==============================================================================
+
+# Symbolication
+app.*.symbols
+
+# Obfuscation
+app.*.map.json
+
+# Flutter Inspector
+flutter_*.png
+flutter_*.skp
+flutter_*.timeline
+
+# Archivos compilados
+*.class
+
+# Node (si se usan herramientas adicionales)
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+
+# Archivos de base de datos locales
+*.db
+*.sqlite
+
+# Metadata autogenerado que cambia frecuentemente
+.metadata
+
+################################################################################
+# RECORDATORIOS PARA EL EQUIPO:
+#
+# 1. pubspec.lock y Podfile.lock DEBEN versionarse (consistencia)
+# 2. NUNCA commitear archivos con credenciales o API keys
+# 3. Los assets del proyecto (imágenes, fuentes) SÍ se versionan
+# 4. La configuración compartida del IDE SÍ se versiona
+# 5. Para ignorar cambios locales: git update-index --skip-worktree archivo
+#
+################################################################################
