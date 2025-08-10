@@ -135,6 +135,7 @@ DerivedData/
 .env.*
 *.env
 !.env.example
+.env.mcp
 
 # Llaves y certificados
 *.pem

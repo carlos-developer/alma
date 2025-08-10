@@ -169,6 +169,61 @@ Start your message with these keywords to manually invoke agents:
 
 For detailed agent documentation, see `.claude/README.md`
 
+## MCP (Model Context Protocol) Integration
+
+### GitHub Integration via MCP
+
+The project is configured to use MCP for GitHub integration, enabling direct interaction with repositories, issues, and pull requests.
+
+#### Setup Instructions
+
+1. **Run the setup script:**
+   ```bash
+   ./setup-mcp-github.sh
+   ```
+
+2. **Configure your GitHub token in `.env.mcp`:**
+   ```bash
+   GITHUB_TOKEN=your_personal_access_token_here
+   ```
+
+3. **Get your token from:** https://github.com/settings/tokens
+   Required permissions:
+   - `repo` (full repository access)
+   - `workflow` (GitHub Actions)
+   - `read:org` (organization repositories)
+
+#### Available MCP GitHub Commands
+
+Use these commands with Claude Code after MCP is configured:
+
+```bash
+# Repository Management
+"lista mis repositorios de GitHub"
+"muestra información del repositorio alma"
+"crea un nuevo repositorio llamado [nombre]"
+
+# Issues & PRs
+"lista los issues abiertos"
+"crea un issue para [descripción]"
+"muestra los pull requests pendientes"
+"crea un PR para el feature actual"
+
+# GitHub Actions
+"muestra el estado del último workflow"
+"ejecuta el workflow de deploy"
+
+# Collaboration
+"lista los colaboradores del proyecto"
+"muestra la actividad reciente del repositorio"
+```
+
+#### MCP Configuration Files
+
+- `.claude/mcp_config.json` - MCP server configuration
+- `.env.mcp` - Environment variables (gitignored)
+- `setup-mcp-github.sh` - Automated setup script
+
 ## Future Implementations
 
 As the project evolves, this document will be updated with:
@@ -177,3 +232,4 @@ As the project evolves, this document will be updated with:
 - Database schema and models
 - Routing and navigation structure
 - Internationalization approach
+- Additional MCP integrations (Jira, Figma, FlutterFlow)

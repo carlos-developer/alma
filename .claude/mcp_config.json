@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    }
+  },
+  "globalShortcuts": {
+    "gh-repos": "github list_repositories",
+    "gh-issues": "github list_issues",
+    "gh-prs": "github list_pull_requests",
+    "gh-create-pr": "github create_pull_request",
+    "gh-create-issue": "github create_issue"
+  }
+}
