@@ -97,8 +97,8 @@ mkdir -p .github/workflows
 REPO_NAME=$(basename -s .git `git config --get remote.origin.url`)
 
 # Create deployment workflow
-cat > .github/workflows/deploy_web.yml << 'EOF'
-name: Deploy Flutter Web to GitHub Pages
+cat > .github/workflows/flutter-web-deploy.yml << 'EOF'
+name: Flutter Web Deploy to GitHub Pages
 
 on:
   # Trigger on push to main branch
@@ -234,7 +234,7 @@ git push origin main
 
 ```bash
 # Check workflow status (if GitHub CLI is available)
-gh run list --workflow=deploy_web.yml
+gh run list --workflow=flutter-web-deploy.yml
 
 # Or check manually at:
 echo "Check workflow at: https://github.com/$(git config --get remote.origin.url | sed 's/.*github.com[:/]\(.*\).git/\1/')/actions"

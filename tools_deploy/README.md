@@ -15,8 +15,7 @@ tools_deploy/
 │   ├── initial-deploy.sh
 │   ├── monitor-deployment.sh
 │   └── quick-deploy.sh
-└── ⚙️ GitHub Actions Workflows
-    ├── deploy_web.yml
+└── ⚙️ GitHub Actions Workflow
     └── flutter-web-deploy.yml
 ```
 
@@ -133,26 +132,7 @@ tools_deploy/
 
 **Cuándo usar:** Para actualizaciones menores o cuando necesitas desplegar rápidamente sin todas las validaciones.
 
-## ⚙️ GitHub Actions Workflows
-
-### deploy_web.yml
-**Propósito:** Workflow básico de GitHub Actions para despliegue manual o programado.
-
-**Características:**
-- Trigger manual desde GitHub UI
-- Configuración mínima de Flutter
-- Build y despliegue básico
-- Compatible con versiones antiguas de Flutter
-
-**Activación:**
-- Manual desde la pestaña Actions en GitHub
-- Push a rama específica (configurable)
-
-**Configuración requerida:**
-```yaml
-- Flutter version: 3.32.4
-- Rama de despliegue: gh-pages
-```
+## ⚙️ GitHub Actions Workflow
 
 ### flutter-web-deploy.yml
 **Propósito:** Workflow completo y optimizado para CI/CD de Flutter web.
