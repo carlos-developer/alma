@@ -57,7 +57,7 @@ jobs:
       run: flutter test --coverage
     
     - name: 📊 Upload coverage
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: coverage-report
@@ -115,7 +115,7 @@ jobs:
     
     # 5. Cache de pub dependencies
     - name: 📦 Cache pub dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.pub-cache
@@ -258,12 +258,11 @@ jobs:
     # 13. Crear release (opcional)
     - name: 📦 Create release
       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v2
       with:
+        token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: v${{ github.run_number }}
-        release_name: Release v${{ github.run_number }}
+        name: Release v${{ github.run_number }}
         body: |
           ## 🚀 Automated Release
           
@@ -275,6 +274,7 @@ jobs:
           ${{ github.event.head_commit.message }}
         draft: false
         prerelease: false
+        generate_release_notes: false
       continue-on-error: true
     
     # 14. Verificar deployment
