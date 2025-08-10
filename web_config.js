@@ -18,22 +18,8 @@ if ('serviceWorker' in navigator) {
 }
 
 // Configuración de rendimiento
-window.flutterConfiguration = {
-  // Usar CanvasKit para mejor rendimiento gráfico
-  canvasKitBaseUrl: "https://unpkg.com/canvaskit-wasm@0.38.0/bin/",
-  
-  // Configuración de carga
-  loadingConfig: {
-    // Mostrar splash mientras carga
-    showSplash: true,
-    
-    // Tiempo máximo de espera (ms)
-    timeout: 30000,
-    
-    // Reintentos en caso de fallo
-    maxRetries: 3
-  }
-};
+// NOTA: No usar window.flutterConfiguration con Flutter 3.x+
+// La configuración se maneja ahora a través del engineInitializer
 
 // Detector de conexión para experiencia offline
 window.addEventListener('online', function() {
