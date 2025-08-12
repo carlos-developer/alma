@@ -163,7 +163,7 @@ void main() {
       
       final decoration = container.decoration as BoxDecoration;
       final color = decoration.color;
-      expect(color?.alpha, lessThan(255)); // Should have reduced alpha for disabled state
+      expect(((color?.a ?? 1.0) * 255.0).round() & 0xff, lessThan(255)); // Should have reduced alpha for disabled state
     });
 
     testWidgets('has proper rounded corners and shadow when not disabled', (WidgetTester tester) async {

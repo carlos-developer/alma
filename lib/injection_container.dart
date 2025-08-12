@@ -12,20 +12,49 @@ import 'features/color_game/presentation/bloc/color_game_bloc.dart';
 /// Service locator instance
 final sl = GetIt.instance;
 
-/// Initialize all dependencies
+/// Flag to prevent multiple initializations
+bool _isInitialized = false;
+
+/// Initialize all dependencies (safe for multiple calls)
 Future<void> init() async {
+  if (_isInitialized) {
+    AppLogger.i('Dependency injection container already initialized - skipping');
+    return;
+  }
+
   AppLogger.i('Initializing dependency injection container');
 
-  // Features - Color Game
-  _initColorGame();
+  try {
+    // Clear existing registrations in case of partial initialization
+    if (sl.isRegistered<ColorGameBloc>()) {
+      await sl.reset();
+    }
 
-  // Core
-  _initCore();
+    // Features - Color Game
+    _initColorGame();
 
-  // External
-  _initExternal();
+    // Core
+    _initCore();
 
-  AppLogger.i('Dependency injection container initialized successfully');
+    // External
+    _initExternal();
+
+    _isInitialized = true;
+    AppLogger.i('Dependency injection container initialized successfully');
+  } catch (e) {
+    AppLogger.e('Error initializing dependency injection: $e');
+    // Reset flag on error so we can try again
+    _isInitialized = false;
+    rethrow;
+  }
+}
+
+/// Reset the dependency injection container (for testing)
+Future<void> reset() async {
+  AppLogger.i('Resetting dependency injection container');
+  await sl.reset();
+  _isInitialized = false;
+  AppLogger.i('Dependency injection container reset completed');
 }
 
 void _initColorGame() {

@@ -14,7 +14,7 @@ void main() {
 
       // act
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GameScoreDisplay(
               score: score,
@@ -35,7 +35,7 @@ void main() {
     testWidgets('displays correct icons for each stat', (WidgetTester tester) async {
       // act
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GameScoreDisplay(
               score: 100,
@@ -56,7 +56,7 @@ void main() {
     testWidgets('displays correct labels', (WidgetTester tester) async {
       // act
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GameScoreDisplay(
               score: 200,
@@ -77,7 +77,7 @@ void main() {
     testWidgets('has proper container styling', (WidgetTester tester) async {
       // act
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GameScoreDisplay(
               score: 50,
@@ -107,7 +107,7 @@ void main() {
     testWidgets('has proper padding', (WidgetTester tester) async {
       // act
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GameScoreDisplay(
               score: 75,
@@ -136,7 +136,7 @@ void main() {
     testWidgets('arranges items horizontally with proper spacing', (WidgetTester tester) async {
       // act
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GameScoreDisplay(
               score: 300,
@@ -174,7 +174,7 @@ void main() {
     testWidgets('displays proper icon colors', (WidgetTester tester) async {
       // act
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GameScoreDisplay(
               score: 125,
@@ -203,7 +203,7 @@ void main() {
     testWidgets('displays text with proper styling', (WidgetTester tester) async {
       // act
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GameScoreDisplay(
               score: 250,
@@ -232,7 +232,7 @@ void main() {
     testWidgets('handles zero values correctly', (WidgetTester tester) async {
       // act
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GameScoreDisplay(
               score: 0,
@@ -253,7 +253,7 @@ void main() {
     testWidgets('handles large numbers correctly', (WidgetTester tester) async {
       // act
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GameScoreDisplay(
               score: 99999,
@@ -274,7 +274,7 @@ void main() {
     testWidgets('maintains consistent layout with varying content lengths', (WidgetTester tester) async {
       // Test with short values
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GameScoreDisplay(
               score: 5,
@@ -290,7 +290,7 @@ void main() {
 
       // Test with long values
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GameScoreDisplay(
               score: 123456,
@@ -316,8 +316,10 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
 
       await tester.pumpWidget(
+        // MaterialApp cannot be const here due to dynamic screen size configuration
+        // ignore: prefer_const_constructors
         MaterialApp(
-          home: Scaffold(
+          home: const Scaffold(
             body: Center(
               child: GameScoreDisplay(
                 score: 100,
@@ -340,7 +342,7 @@ void main() {
     testWidgets('columns are properly aligned', (WidgetTester tester) async {
       // act
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: GameScoreDisplay(
               score: 175,

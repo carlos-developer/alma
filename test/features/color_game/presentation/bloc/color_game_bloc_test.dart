@@ -37,7 +37,7 @@ void main() {
     
     // Register fallback values for mocktail
     registerFallbackValue(NoParams());
-    registerFallbackValue(GenerateColorQuestionParams(level: 1));
+    registerFallbackValue(const GenerateColorQuestionParams(level: 1));
     registerFallbackValue(AnswerQuestionParams(
       session: GameSession(
         id: 'test',

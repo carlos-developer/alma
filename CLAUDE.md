@@ -99,6 +99,28 @@ alma/
 
 ## Development Guidelines
 
+### Code Quality Requirements
+
+**IMPORTANTE**: Como subagente de desarrollo, SIEMPRE debes:
+
+1. **Ejecutar `flutter analyze` después de CADA cambio de código**
+2. **NO dejar errores, warnings o info issues en el código**  
+3. **Corregir TODOS los problemas antes de marcar una tarea como completada**
+4. **El código debe quedar completamente limpio y sin errores**
+
+```bash
+# OBLIGATORIO: Ejecutar después de cada modificación
+flutter analyze
+
+# El resultado esperado debe ser:
+# "No issues found!"
+```
+
+Si `flutter analyze` muestra problemas:
+- **Errors (rojo)**: Deben corregirse INMEDIATAMENTE
+- **Warnings (amarillo)**: Deben corregirse antes de continuar
+- **Info (azul)**: Deben corregirse para mantener calidad del código
+
 ### Code Organization
 
 - Create feature-based folders in `lib/` as the project grows

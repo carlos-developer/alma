@@ -18,6 +18,7 @@ class ColorGamePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: const Key('color_game_page'),
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: BlocConsumer<ColorGameBloc, ColorGameState>(

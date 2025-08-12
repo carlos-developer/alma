@@ -14,8 +14,15 @@ import 'injection_container.dart' as di;
 import 'injection_container.dart';
 
 void main() async {
-  // Ensure Flutter binding is initialized
-  WidgetsFlutterBinding.ensureInitialized();
+  await mainCommon();
+}
+
+/// Common main function that can be called from both main() and tests
+Future<void> mainCommon({bool isTest = false}) async {
+  // Ensure Flutter binding is initialized (but avoid double initialization in tests)
+  if (!isTest) {
+    WidgetsFlutterBinding.ensureInitialized();
+  }
 
   // Initialize logger
   AppLogger.init(
@@ -25,29 +32,63 @@ void main() async {
   // Log application start
   AppLogger.i('Starting ALMA application');
 
-  // Set preferred orientations (optional - for better mobile experience)
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]);
+  // Set preferred orientations only if not in test mode
+  // Integration tests have issues with SystemChrome calls
+  if (!isTest && !_isRunningInTest()) {
+    try {
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    } catch (e) {
+      // Silently ignore SystemChrome errors in test environment
+      AppLogger.w('SystemChrome.setPreferredOrientations failed: $e');
+    }
+  }
 
   // Initialize dependency injection
   await di.init();
 
-  // Configure system UI overlay style
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.white,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ),
-  );
+  // Configure system UI overlay style only if not in test mode
+  if (!isTest && !_isRunningInTest()) {
+    try {
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarColor: Colors.white,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
+      );
+    } catch (e) {
+      // Silently ignore SystemChrome errors in test environment
+      AppLogger.w('SystemChrome.setSystemUIOverlayStyle failed: $e');
+    }
+  }
 
   // Run the app with error handling
   runApp(const AlmaApp());
+}
+
+/// Checks if the app is running in a test environment
+bool _isRunningInTest() {
+  // For web, we can't access Platform.environment
+  // So we just return false as we're not in a test environment
+  if (kIsWeb) {
+    return false;
+  }
+  
+  // This will only be executed on non-web platforms
+  // We need to do a runtime check to avoid importing dart:io on web
+  try {
+    // Use a dynamic check to avoid direct Platform reference
+    const testEnv = String.fromEnvironment('FLUTTER_TEST', defaultValue: 'false');
+    return testEnv == 'true';
+  } catch (e) {
+    return false;
+  }
 }
 
 /// Main application widget

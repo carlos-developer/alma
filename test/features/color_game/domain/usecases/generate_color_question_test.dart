@@ -19,12 +19,12 @@ void main() {
     usecase = GenerateColorQuestion(mockRepository);
   });
 
-  final tLevel = 1;
+  const tLevel = 1;
   final tColorQuestion = ColorQuestion(
     id: const Uuid().v4(),
     correctColorName: 'Rojo',
     correctColor: Colors.red,
-    options: ['Rojo', 'Azul'],
+    options: const ['Rojo', 'Azul'],
     level: tLevel,
     createdAt: DateTime.now(),
   );
@@ -37,7 +37,7 @@ void main() {
           .thenAnswer((_) async => Right(tColorQuestion));
 
       // act
-      final result = await usecase(GenerateColorQuestionParams(level: tLevel));
+      final result = await usecase(const GenerateColorQuestionParams(level: tLevel));
 
       // assert
       expect(result, Right(tColorQuestion));
@@ -55,7 +55,7 @@ void main() {
           .thenAnswer((_) async => const Left(tFailure));
 
       // act
-      final result = await usecase(GenerateColorQuestionParams(level: tLevel));
+      final result = await usecase(const GenerateColorQuestionParams(level: tLevel));
 
       // assert
       expect(result, const Left(tFailure));

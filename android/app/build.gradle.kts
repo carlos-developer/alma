@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.alma"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // ndkVersion = flutter.ndkVersion // Commented temporarily due to NDK issue
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
